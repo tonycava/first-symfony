@@ -1,0 +1,27 @@
+# Use an official PHP image as the base image (choose the PHP version you need)
+FROM php:8.1.19
+
+# Install system dependencies and Symfony requirements
+RUN apt-get update && apt-get install -y \
+    git \
+    unzip \
+    libicu-dev \
+    libzip-dev \
+    && docker-php-ext-install intl zip pdo pdo_mysql
+
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+# Set working directory
+WORKDIR /app
+
+# Copy the Symfony project files into the container
+COPY . .
+
+# Install Symfony dependencies using Composer
+RUN composer install
+
+# Expose the port that your web server listens on (Symfony development server typically uses port 8000)
+EXPOSE 8080
+
+# Start the Symfony development server
+CMD php -S 0.0.0.0:8080 public/index.php

@@ -1,0 +1,15 @@
+version: "3.4"
+
+# Production environment override
+services:
+  php:
+    ports:
+      - "8080:443"
+    build: 
+      context: .
+      dockerfile: Dockerfile.prod
+    environment:
+      APP_SECRET: 801f338ea4f4ddf21c8a004e21686cce
+      MERCURE_PUBLISHER_JWT_KEY: test
+      MERCURE_SUBSCRIBER_JWT_KEY: test
+  
