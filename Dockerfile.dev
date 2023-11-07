@@ -1,7 +1,13 @@
-# Use an official PHP image as the base image (choose the PHP version you need)
 FROM php:8.1.19
 
-# Install system dependencies and Symfony requirements
+ENV APP_ENV=dev XDEBUG_MODE=off
+
+VOLUME /app/var/
+
+RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
+
+COPY --link frankenphp/conf.d/app.dev.ini $PHP_INI_DIR/conf.d/
+
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
@@ -11,17 +17,17 @@ RUN apt-get update && apt-get install -y \
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-# Set working directory
 WORKDIR /app
 
-# Copy the Symfony project files into the container
-COPY . .
+COPY --link ./composer.json ./
 
 # Install Symfony dependencies using Composer
 RUN composer install
 
-# Expose the port that your web server listens on (Symfony development server typically uses port 8000)
+COPY --link . .
+
+RUN rm -rf frankenphp/
+
 EXPOSE 8080
 
-# Start the Symfony development server
 CMD php -S 0.0.0.0:8080 public/index.php

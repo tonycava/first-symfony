@@ -1,5 +1,5 @@
 # Executables (local)
-DOCKER_COMP = docker compose
+DOCKER_COMP = docker compose -f docker-compose.prod.yml
 
 # Docker containers
 PHP_CONT = $(DOCKER_COMP) exec php
@@ -22,7 +22,7 @@ build: ## Builds the Docker images
 	@$(DOCKER_COMP) build --pull --no-cache
 
 up: ## Start the docker hub in detached mode (no logs)
-	@$(DOCKER_COMP) up --detach
+	@$(DOCKER_COMP) up --build
 
 start: build up ## Build and start the containers
 

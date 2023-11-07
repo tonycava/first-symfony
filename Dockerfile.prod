@@ -56,9 +56,19 @@ FROM frankenphp_base AS frankenphp_prod
 ENV APP_ENV=prod
 ENV FRANKENPHP_CONFIG="import worker.Caddyfile"
 
-RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
+COPY --link ./get-php-ini.php ./get-php-ini.php
+COPY --link composer.json ./
+
+RUN git clone https://github.com/tonycava/php-ini-list php-ini-list
+
+RUN php ./get-php-ini.php ./composer.json
+
+RUN ls
+
+COPY ./php.ini $PHP_INI_DIR/php.ini
 
 COPY --link frankenphp/conf.d/app.prod.ini $PHP_INI_DIR/conf.d/
+
 COPY --link frankenphp/worker.Caddyfile /etc/caddy/worker.Caddyfile
 
 # prevent the reinstallation of vendors at every changes in the source code
@@ -68,7 +78,8 @@ RUN set -eux; \
 
 # copy sources
 COPY --link . ./
-RUN rm -Rf frankenphp/
+RUN rm -rf frankenphp/
+RUN rm php.ini
 
 RUN set -eux; \
 	mkdir -p var/cache var/log; \
